@@ -1,5 +1,15 @@
-# Run this with 
+# Build this with 
 # docker build -t vggsfm-test .
+
+# Then when ready to build and push to remote
+# docker build -t gcr.io/tour-project-442218/vggsfm . && docker push gcr.io/tour-project-442218/vggsfm
+
+# Run docker container with
+# docker run -it --gpus all vggsfm-test /bin/bash
+
+# Once inside run
+# gcloud storage rsync -r gs://tour_storage/data/tandt data/tandt
+# python demo.py SCENE_DIR=data/tandt/truck shared_camera=True extra_pt_pixel_interval=10 concat_extra_points=True 
 
 FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-devel
 
@@ -56,7 +66,3 @@ WORKDIR vggsfm
 # Install vggsfm
 RUN bash install.sh && \
     python -m pip install -e .
-
-
-# Download the data (requires gcs credentials)
-RUN gcloud storage rsync -r gs://tour_storage/data/tandt data/tandt
