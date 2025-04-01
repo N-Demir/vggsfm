@@ -3,13 +3,60 @@
 
 FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-devel
 
+# Set environment variables to avoid interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=America/New_York
+
+# Install git
+RUN apt-get update && apt-get install -y curl gnupg && \
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
+    apt-get update && apt-get install -y \
+    google-cloud-cli \
+    git \
+    wget \
+    unzip \
+    cmake \
+    build-essential \
+    ninja-build \
+    libglew-dev \
+    libassimp-dev \
+    libboost-all-dev \
+    libgtk-3-dev \
+    libopencv-dev \
+    libglfw3-dev \
+    libavdevice-dev \
+    libavcodec-dev \
+    libeigen3-dev \
+    libxxf86vm-dev \
+    tmux \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy the service account key file
+COPY gcs-tour-project-service-account-key.json .
+
+# Authenticate with Google Cloud
+RUN gcloud auth activate-service-account --key-file=gcs-tour-project-service-account-key.json && \
+    gcloud config set project tour-project-442218
+
+# Update conda
+RUN conda update -n base -c defaults conda -y
+RUN conda init bash && \
+    echo "conda activate base" >> ~/.bashrc
+RUN conda config --add channels defaults
+
+# Make sure conda is in the PATH
+ENV PATH /opt/conda/bin:$PATH
+
 # Download the repo
 RUN git clone https://github.com/N-Demir/vggsfm.git
 
 WORKDIR vggsfm
 
 # Install vggsfm
-RUN source install.sh
-RUN python -m pip install -e .
+RUN bash install.sh && \
+    python -m pip install -e .
 
 
+# Download the data (requires gcs credentials)
+RUN gcloud storage rsync -r gs://tour_storage/data/tandt data/tandt
