@@ -34,7 +34,7 @@ def train_vggsfm(dataset: str | None = None):
 @app.local_entrypoint()
 def main():
     parser = argparse.ArgumentParser(description='Run VGGSfM training on Modal')
-    parser.add_argument('--dataset', type=str, help='Name of the dataset to train on (e.g., tandt/truck)')
+    parser.add_argument('--dataset', type=str, default=None, help='Name of the dataset to train on (e.g., tandt/truck)')
     args = parser.parse_args()
     
     train_vggsfm.remote(args.dataset)
