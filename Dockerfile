@@ -1,15 +1,18 @@
 # Build this with 
 # docker build -t vggsfm-test .
 
-# Then when ready to build and push to remote
-# docker build -t gcr.io/tour-project-442218/vggsfm . && docker push gcr.io/tour-project-442218/vggsfm
-
 # Run docker container with
 # docker run -it --gpus all vggsfm-test /bin/bash
+
+# Then when ready to build and push to remote
+# docker build -t gcr.io/tour-project-442218/vggsfm . && docker push gcr.io/tour-project-442218/vggsfm
+# Then to run it
+# docker run -it --gpus all gcr.io/tour-project-442218/vggsfm /bin/bash
 
 # Once inside run
 # gcloud storage rsync -r gs://tour_storage/data/tandt data/tandt
 # python demo.py SCENE_DIR=data/tandt/truck shared_camera=True extra_pt_pixel_interval=10 concat_extra_points=True 
+# gcloud storage rsync -r data/tandt/truck gs://tour_storage/data/tandt/truck
 
 FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-devel
 
